@@ -11,7 +11,7 @@
     <header class="top-bar">
         <button class="btn-back">← Back</button>
         <div class="main-title">
-            <span class="icon">🕹️</span> Retro ROMs & ISOs Vault <span class="version">(v0.4)</span>
+            <span class="icon">🕹️</span> Retro ROMs & ISOs Vault <span class="version">(v0.5)</span>
         </div>
         <div style="width: 80px;"></div>
     </header>
@@ -75,41 +75,53 @@
             </aside>
         </div>
 
-        <section class="terminal-container">
+        <section class="terminal-container hidden" id="terminal-container">
             <div class="terminal-header">
-                <span>💻 System Core Terminal (Error Logs)</span>
+                <span>💻 System Core Terminal (Error Logs Active)</span>
                 <button class="btn-clear-terminal" onclick="limparTerminal()">Clear</button>
             </div>
             <div class="terminal-body" id="terminal-body">
-                <div class="log-info">[SYSTEM] Inicializando Retro Vault OS v0.4...</div>
-                <div class="log-success">[SUCCESS] Todos os módulos de estilo carregados.</div>
+                <div class="log-info">[SYSTEM] Modo de Depuração Iniciado via Atalho.</div>
+                <div class="log-success">[SUCCESS] Retro Vault Core operacional.</div>
             </div>
         </section>
     </main>
 
     <script>
-        // Função para escrever mensagens no console do site
+        // Monitora as teclas digitadas
+        window.addEventListener('keydown', function(event) {
+            // Verifica se as teclas Shift, Alt e C (tanto maiúsculo quanto minúsculo) foram apertadas juntas
+            if (event.shiftKey && event.altKey && (event.key === 'c' || event.key === 'C')) {
+                event.preventDefault(); // Previne qualquer ação padrão do navegador
+                
+                const terminal = document.getElementById('terminal-container');
+                
+                // Liga e desliga a classe 'hidden' para mostrar ou sumir com o console
+                if (terminal.classList.contains('hidden')) {
+                    terminal.classList.remove('hidden');
+                    enviarAoTerminal('Terminal de Erros aberto via atalho de desenvolvedor.', 'sucesso');
+                } else {
+                    terminal.classList.add('hidden');
+                }
+            }
+        });
+
         function enviarAoTerminal(mensagem, tipo) {
             const corpoTerminal = document.getElementById('terminal-body');
             const agora = new Date();
-            const hora = agora.toTimeString().split(' ')[0]; // Pega o horário atual (HH:MM:SS)
+            const hora = agora.toTimeString().split(' ')[0];
             
             let classeLog = 'log-info';
             if (tipo === 'erro') classeLog = 'log-error';
             if (tipo === 'sucesso') classeLog = 'log-success';
 
-            // Adiciona a nova linha de log
             corpoTerminal.innerHTML += `<div class="${classeLog}">[${hora}] ${mensagem}</div>`;
-            
-            // Faz o scroll ir para o final automaticamente
             corpoTerminal.scrollTop = corpoTerminal.scrollHeight;
         }
 
-        // Função que pede a senha antes do download
         function solicitarSenha(nomeDoJogo) {
             enviarAoTerminal(`Requisição de download criada para: "${nomeDoJogo}".`, 'info');
             
-            // Defina a senha do seu site aqui (troque "1234" pela senha que quiser)
             const senhaCorreta = "1234"; 
             const senhaDigitada = prompt(`[SEGURANÇA] Digite a senha para baixar ${nomeDoJogo}:`);
 
@@ -119,19 +131,16 @@
             }
 
             if (senhaDigitada === senhaCorreta) {
-                enviarAoTerminal(`[AUTORIZADO] Senha correta para "${nomeDoJogo}". Iniciando transferência...`, 'sucesso');
+                enviarAoTerminal(`[AUTORIZADO] Código válido para "${nomeDoJogo}". Transferindo arquivo...`, 'sucesso');
                 alert("Senha correta! O download foi liberado.");
-                // Aqui você colocaria o link real do jogo se quisesse, ex:
-                // window.location.href = "link_do_jogo.iso";
             } else {
-                enviarAoTerminal(`[CRITICAL ERROR] Tentativa falha de download de "${nomeDoJogo}". Senha inválida!`, 'erro');
+                enviarAoTerminal(`[CRITICAL ERROR] Falha de autenticação em "${nomeDoJogo}". Código inválido incorporado!`, 'erro');
                 alert("Erro: Senha incorreta. Acesso negado.");
             }
         }
 
-        // Função para limpar as mensagens do console
         function limparTerminal() {
-            document.getElementById('terminal-body').innerHTML = '<div class="log-info">[SYSTEM] Terminal limpo pelo operador.</div>';
+            document.getElementById('terminal-body').innerHTML = '<div class="log-info">[SYSTEM] Registros limpos.</div>';
         }
     </script>
 </body>
